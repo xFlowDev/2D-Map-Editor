@@ -23,6 +23,7 @@
 			<Menu>
 				<MenuItem Header="File">
 					<MenuItem Header="Neue Datei..." Click="OpenNewFileWindow" />
+					<MenuItem Header="Datei Speichern" Click="SaveFile"/>
 				</MenuItem>
 			</Menu>
 			<Menu>
@@ -64,9 +65,9 @@
 		<Canvas Name="EditorCanvas"
 					Grid.Row="2" Grid.Column="1"
 					Background="Transparent"
-					PreviewMouseDown="Canvas_MouseDown"
-					PreviewMouseUp="Canvas_MouseUp"
-					PreviewMouseMove="Canvas_MouseMove">
+					PreviewMouseDown="MapMouseDown"
+					PreviewMouseUp="MapMouseUp"
+					PreviewMouseMove="MoveMap">
 		</Canvas>
 		<Border Background="LightGray"
 				x:Name="Footer"

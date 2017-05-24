@@ -12,9 +12,6 @@ using System.Windows.Shapes;
 
 namespace MapEditor
 {
-	/// <summary>
-	/// Interaction logic for MainWindow.xaml
-	/// </summary>
 	public partial class MainWindow : Window
 	{
 		private Map MapInEditor = new Map(0, 0, 0, 0);
@@ -22,23 +19,14 @@ namespace MapEditor
 		private bool isMousePressed = false;
 		private Point startPoint;
 
-		private BitmapImage Spritesheet;
+		private ImageManager ImgMgr = new ImageManager();
 
+		private BitmapImage Spritesheet;
 		private Image SelectedTile;
 
 		public MainWindow()
 		{
 			InitializeComponent();
-
-			//FooterText.Text = "Geladen" + " Map:";
-			//FooterText.Text += "X: " + MapInEditor.x + " " + " Y: " + MapInEditor.y;
-			//FooterText.Text += "Width: " + MapInEditor.width + " Height: " + MapInEditor.height;
-		}
-
-		private void OpenNewFileWindow(object sender, RoutedEventArgs e)
-		{
-			NewFileWindow newFileWindow = new NewFileWindow();
-			newFileWindow.Show();
 		}
 
 		public void CreateNewMap(Map map)
@@ -81,6 +69,12 @@ namespace MapEditor
 			}
 		}
 
+		private void OpenNewFileWindow(object sender, RoutedEventArgs e)
+		{
+			NewFileWindow newFileWindow = new NewFileWindow();
+			newFileWindow.Show();
+		}
+
 		private void DrawTile(object sender, MouseButtonEventArgs e)
 		{
 			if (SelectedTile != null)
@@ -88,7 +82,7 @@ namespace MapEditor
 				var rectClicked = (Rectangle)e.Source;
 				var rectInList = MapInEditor.tiles.Find(x => x.Rectangle == rectClicked);
 				//Image Source dynamisch auf Auswahl eines Tiles anpassen
-				rectInList.Image = SelectedTile;
+				rectInList.Image = (BitmapImage)SelectedTile.Source;
 				rectClicked.Fill = new ImageBrush
 				{
 					ImageSource = SelectedTile.Source
@@ -96,24 +90,22 @@ namespace MapEditor
 			}
 			else
 			{
-				FooterText.Text = "Keine Auswahl getroffen";
+				FileExplorerText.Text = "Keine Auswahl getroffen";
 			}
 		}
 
-		#region CanvasMovement
-
-		public void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+		private void MapMouseDown(object sender, MouseButtonEventArgs e)
 		{
 			startPoint = e.GetPosition(EditorCanvas);
 			isMousePressed = true;
 		}
 
-		private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+		private void MapMouseUp(object sender, MouseButtonEventArgs e)
 		{
 			isMousePressed = false;
 		}
 
-		private void Canvas_MouseMove(object sender, MouseEventArgs e)
+		private void MoveMap(object sender, MouseEventArgs e)
 		{
 			if (isMousePressed)
 			{
@@ -136,8 +128,6 @@ namespace MapEditor
 			Koordinaten.Text = e.GetPosition(EditorCanvas).ToString();
 		}
 
-		#endregion CanvasMovement
-
 		private void OpenSpritesheet(object sender, MouseButtonEventArgs e)
 		{
 			Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
@@ -158,7 +148,7 @@ namespace MapEditor
 				//Spritesheet zerschneiden
 				//Einzelne Tiles als Auswahl anzeigen
 
-				var tileList = ImageManager.SplitSpritesheet(Spritesheet, 32, 32);
+				var tileList = ImgMgr.SplitSpritesheet(Spritesheet, 32, 32);
 				foreach (var tile in tileList)
 				{
 					var border = new Border();
@@ -181,13 +171,18 @@ namespace MapEditor
 			foreach (Border child in SpriteExplorer.Children)
 			{
 				child.BorderBrush = Brushes.Transparent;
-				child.BorderThickness = new Thickness(2);
 			}
 
 			SelectedTile = (Image)e.OriginalSource;
 			var Border = (Border)SelectedTile.Parent;
 			Border.BorderBrush = Brushes.Black;
-			Border.BorderThickness = new Thickness(2);
+		}
+
+		private void SaveFile(object sender, RoutedEventArgs e)
+		{
+			//Setze die Map zusammen mit allen Bildern des Canvas
+			var mapImage = ImgMgr.CreateMapImage(MapInEditor);
+			//Hole die Daten die dahinter stecken und speichere es in XML oder so
 		}
 	}
 }
